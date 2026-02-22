@@ -106,8 +106,7 @@ export const employees: Employee[] = Array.from(
   }
 );
 
-async function main() {
-
+export async function main() {
   console.log("Seeding data...");
 
   await prisma.employee.createMany({

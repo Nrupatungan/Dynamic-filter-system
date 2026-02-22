@@ -3,12 +3,22 @@ import express from "express";
 import cors from "cors";
 import { prisma } from "./lib/prisma.js";
 import { buildWhereClause } from "./utils/prismaFilterBuilder.js";
+import { main } from "./scripts/seed.js";
+
+if (process.env.NODE_ENV === "production") {
+  await prisma.employee.count().then(async (count) => {
+    if (count === 0) {
+      await main();
+      console.log("Database seeded");
+    }
+  });
+}
 
 const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  String(process.env.CORS_ORIGIN)
+  "https://dynamic-filt.netlify.app"
 ];
 
 app.use(
