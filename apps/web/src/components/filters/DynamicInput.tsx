@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import {
   TextField,
   Switch,
@@ -10,7 +11,7 @@ import {
   ListItemText,
   Stack
 } from "@mui/material";
-
+import { useEffect, useRef, useState } from "react";
 import type { FieldType } from "../../types/filter.types";
 
 interface DynamicInputProps {
@@ -28,6 +29,38 @@ const DynamicInput = ({
   options,
   onChange
 }: DynamicInputProps) => {
+
+  const [localValue, setLocalValue] = useState(value ?? "");
+
+  // keep latest onChange without triggering effect reruns
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // sync local state only when external value truly changes
+  useEffect(() => {
+    setLocalValue(value ?? "");
+  }, [value]);
+
+  // debounce only text + number
+  useEffect(() => {
+    if (fieldType !== "text" && fieldType !== "number") return;
+
+    const timer = setTimeout(() => {
+      if (fieldType === "number") {
+        onChangeRef.current(
+          localValue === "" ? "" : Number(localValue)
+        );
+      } else {
+        onChangeRef.current(localValue);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+
+  }, [localValue, fieldType]);
+
   if (!fieldType || !operator) return null;
 
   // TEXT
@@ -37,8 +70,8 @@ const DynamicInput = ({
         sx={{ minWidth: 180 }}
         size="small"
         label="Value"
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
       />
     );
   }
@@ -51,8 +84,8 @@ const DynamicInput = ({
         size="small"
         type="number"
         label="Value"
-        value={value || ""}
-        onChange={(e) => onChange(Number(e.target.value))}
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
       />
     );
   }
@@ -67,7 +100,6 @@ const DynamicInput = ({
     return (
       <Stack direction="row" spacing={2}>
         <TextField
-          sx={{ minWidth: 180 }}
           size="small"
           type="number"
           label="Min"
@@ -82,7 +114,6 @@ const DynamicInput = ({
           }
         />
         <TextField
-          sx={{ minWidth: 180 }}
           size="small"
           type="number"
           label="Max"
@@ -110,7 +141,6 @@ const DynamicInput = ({
     return (
       <Stack direction="row" spacing={2}>
         <TextField
-          sx={{ minWidth: 180 }}
           size="small"
           type="date"
           label="From"
@@ -121,7 +151,6 @@ const DynamicInput = ({
           }
         />
         <TextField
-          sx={{ minWidth: 180 }}
           size="small"
           type="date"
           label="To"
@@ -153,7 +182,7 @@ const DynamicInput = ({
   // SINGLE SELECT
   if (fieldType === "singleSelect") {
     return (
-      <FormControl sx={{ minWidth: 200 }} size="small">
+      <FormControl size="small">
         <InputLabel>Value</InputLabel>
         <Select
           value={value || ""}
@@ -173,18 +202,20 @@ const DynamicInput = ({
   // MULTI SELECT
   if (fieldType === "multiSelect") {
     const selectedValues = Array.isArray(value)
-    ? (value as string[])
-    : [];
+      ? (value as string[])
+      : [];
 
     return (
-      <FormControl sx={{ minWidth: 200 }} size="small">
+      <FormControl size="small">
         <InputLabel>Value</InputLabel>
         <Select
           multiple
-          value={value || []}
+          value={selectedValues}
           label="Value"
           onChange={(e) => onChange(e.target.value)}
-          renderValue={(selected) => (selected as string[]).join(", ")}
+          renderValue={(selected) =>
+            (selected as string[]).join(", ")
+          }
         >
           {options?.map((opt) => (
             <MenuItem key={opt} value={opt}>

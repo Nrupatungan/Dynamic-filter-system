@@ -14,7 +14,9 @@ export interface Employee {
   joinDate: Date;
   isActive: boolean;
   skills: string[];
-  address: Address;
+  city: string;
+  state: string;
+  country: string;
   projects: number;
   lastReview: Date;
   performanceRating: number;

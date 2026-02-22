@@ -20,7 +20,7 @@ const columns: Column<Employee>[] = [
   { label: "Department", field: "department", sortable: true },
   { label: "Salary", field: "salary", sortable: true },
   { label: "Join Date", field: "joinDate", sortable: true },
-  { label: "City", field: "address.city", sortable: true },
+  { label: "City", field: "city", sortable: true },
   {
     label: "Skills",
     field: "skills",
@@ -55,11 +55,12 @@ function App() {
   } = useFilters(employees, filterMode);
 
     useEffect(() => {
-      fetchEmployees()
-        .then((data) => setEmployees(data))
+      fetchEmployees().then((data) => {
+        console.log(data[0]); // 👈 check shape
+        setEmployees(data);
+      });
     }, []);
 
-  if (loading) return <div>Loading...</div>;
 
   return (
     <>
@@ -83,7 +84,10 @@ function App() {
               value={filterMode}
               exclusive
               onChange={(_, value) => {
-                if (value) setFilterMode(value);
+                if (value) {
+                  setFilterMode(value);
+                  setPage(0);
+                }
               }}
               size="small"
             >

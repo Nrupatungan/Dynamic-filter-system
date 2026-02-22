@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState, useMemo } from "react";
 import { fieldConfig } from "../config/fieldConfig";
 import { operatorMap } from "../config/operatorConfig";
 import type { FilterCondition } from "../types/filter.types";
@@ -13,22 +13,14 @@ const sanitizeFilters = (
   filters: FilterCondition[]
 ): FilterCondition[] => {
   return filters.filter((filter) => {
-    if (!filter.field || !filter.operator)
-      return false;
+    if (!filter.field || !filter.operator) return false;
 
     const config = fieldConfig.find(
       (f) => f.field === filter.field
     );
-
     if (!config) return false;
 
-    const allowedOperators =
-      operatorMap[config.type];
-
-    if (!allowedOperators.includes(filter.operator))
-      return false;
-
-    return true;
+    return operatorMap[config.type].includes(filter.operator);
   });
 };
 
@@ -48,13 +40,8 @@ export const useFilters = <T>(
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) return [];
-
-      const parsed: FilterCondition[] =
-        JSON.parse(stored);
-
-      if (!Array.isArray(parsed)) return [];
-
-      return sanitizeFilters(parsed);
+      const parsed: FilterCondition[] = JSON.parse(stored);
+      return Array.isArray(parsed) ? sanitizeFilters(parsed) : [];
     } catch {
       return [];
     }
@@ -62,21 +49,18 @@ export const useFilters = <T>(
 
   const [filters, setFilters] =
     useState<FilterCondition[]>(loadInitialFilters);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(filters)
-      );
-    } catch { /* empty */ }
+  
+  const validFilters = useMemo(() => {
+    return filters.filter((f) =>
+      validateFilter(f).isValid
+    );
   }, [filters]);
 
   useEffect(() => {
-    const validFilters = filters.filter(
-      (f) => validateFilter(f).isValid
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+  }, [filters]);
 
+  useEffect(() => {
     if (mode === "client") {
       const filtered = applyFilters(data, validFilters);
       setTotalCount(filtered.length);
@@ -88,7 +72,8 @@ export const useFilters = <T>(
       return;
     }
 
-    // SERVER MODE
+    let ignore = false;
+
     setLoading(true);
 
     fetchFilteredEmployees(
@@ -99,12 +84,22 @@ export const useFilters = <T>(
       order
     )
       .then((res) => {
-        setServerData(res.data);
-        setTotalCount(res.total);
+        if (!ignore) {
+          setServerData(res.data);
+          setTotalCount(res.total);
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ignore) {
+          setLoading(false);
+        }
+      });
 
-  }, [filters, data, mode, page, rowsPerPage, orderBy, order]);
+    return () => {
+      ignore = true;
+    };
+
+  }, [validFilters, data, mode, page, rowsPerPage, orderBy, order]);
 
   return {
     filters,

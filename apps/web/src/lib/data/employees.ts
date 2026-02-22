@@ -94,7 +94,9 @@ export const employees: Employee[] = Array.from(
       joinDate,
       isActive: Math.random() > 0.2,
       skills: randomSkills(),
-      address: city,
+      city: city.city,
+      state: city.state,
+      country: city.country,
       projects: Math.floor(Math.random() * 8) + 1,
       lastReview,
       performanceRating:

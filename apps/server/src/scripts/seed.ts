@@ -95,7 +95,9 @@ export const employees: Employee[] = Array.from(
       joinDate,
       isActive: Math.random() > 0.2,
       skills: randomSkills(),
-      address: city,
+      city: city.city,
+      state: city.state,
+      country: city.country,
       projects: Math.floor(Math.random() * 8) + 1,
       lastReview,
       performanceRating:
@@ -105,14 +107,11 @@ export const employees: Employee[] = Array.from(
 );
 
 async function main() {
-  console.log("Deleting existing records...");
-  await prisma.employee.deleteMany();
 
   console.log("Seeding data...");
 
   await prisma.employee.createMany({
     data: employees.map((emp) => ({
-      id: emp.id,
       name: emp.name,
       email: emp.email,
       department: emp.department,
@@ -121,9 +120,9 @@ async function main() {
       joinDate: new Date(emp.joinDate),
       isActive: emp.isActive,
       skills: emp.skills,
-      city: emp.address.city,
-      state: emp.address.state,
-      country: emp.address.country,
+      city: emp.city,
+      state: emp.state,
+      country: emp.country,
       projects: emp.projects,
       lastReview: new Date(emp.lastReview),
       performanceRating: emp.performanceRating

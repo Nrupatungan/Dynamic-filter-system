@@ -1,5 +1,11 @@
 import type { FilterCondition } from "../types/filter.types.js";
 
+const fieldMap: Record<string, string> = {
+  "address.city": "city",
+  "address.state": "state",
+  "address.country": "country",
+};
+
 export const buildWhereClause = (
   filters: FilterCondition[]
 ) => {
@@ -8,64 +14,69 @@ export const buildWhereClause = (
   const grouped: Record<string, FilterCondition[]> = {};
 
   for (const filter of filters) {
-    if (!grouped[filter.field]) {
-      grouped[filter.field] = [];
+    const dbField = fieldMap[filter.field] ?? filter.field;
+
+    if (!grouped[dbField]) {
+      grouped[dbField] = [];
     }
-    grouped[filter.field].push(filter);
+
+    grouped[dbField].push({
+      ...filter,
+      field: dbField
+    });
   }
 
   return {
     AND: Object.entries(grouped).map(
       ([field, fieldFilters]) => ({
         OR: fieldFilters.map((filter) =>
-          mapOperator(field, filter)
-        )
+          mapOperator(filter)
+        ),
       })
-    )
+    ),
   };
 };
 
-function mapOperator(
-  field: string,
-  filter: FilterCondition
-) {
+function mapOperator(filter: FilterCondition) {
   const { operator, value } = filter;
+
+  // 🔥 translate nested field to DB column
+  const dbField = fieldMap[filter.field] ?? filter.field;
 
   switch (operator) {
     case "equals":
       return {
-        [field]: value
+        [dbField]: value,
       };
 
     case "contains":
       return {
-        [field]: {
+        [dbField]: {
           contains: String(value),
-          mode: "insensitive"
-        }
+        },
       };
 
     case "gt":
       return {
-        [field]: {
-          gt: Number(value)
-        }
+        [dbField]: {
+          gt: Number(value),
+        },
       };
 
     case "lt":
       return {
-        [field]: {
-          lt: Number(value)
-        }
+        [dbField]: {
+          lt: Number(value),
+        },
       };
 
     case "between":
       if (Array.isArray(value)) {
         return {
-          [field]: {
-            gte: value[0],
-            lte: value[1]
-          }
+          [dbField]: {
+            gte: new Date(value[0] as string),
+            lte: new Date(value[1] as string),
+          },
         };
       }
       return {};
