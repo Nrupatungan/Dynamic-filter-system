@@ -51,9 +51,7 @@ const randomDate = (start: Date, end: Date) =>
   new Date(
     start.getTime() +
       Math.random() * (end.getTime() - start.getTime())
-  )
-    .toISOString()
-    .split("T")[0];
+  );
 
 export const employees: Employee[] = Array.from(
   { length: 60 },
@@ -87,7 +85,7 @@ export const employees: Employee[] = Array.from(
     );
 
     return {
-      id: i + 1,
+      id: `emp-${i + 1}`,
       name: `Employee ${i + 1}`,
       email: `employee${i + 1}@company.com`,
       department,
