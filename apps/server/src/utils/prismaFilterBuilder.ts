@@ -1,4 +1,4 @@
-import type { FilterCondition } from "../types/filter.types";
+import type { FilterCondition } from "../types/filter.types.js";
 
 export const buildWhereClause = (
   filters: FilterCondition[]

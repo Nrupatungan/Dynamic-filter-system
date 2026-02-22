@@ -1,4 +1,4 @@
-import type { FilterCondition } from "../types/filter.types";
+import type { FilterCondition } from "../types/filter.types.js";
 
 const isEmpty = (val: unknown) =>
   val === undefined || val === null || val === "";

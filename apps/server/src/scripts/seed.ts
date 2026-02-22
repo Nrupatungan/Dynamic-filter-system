@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
-import { Employee } from "../types/employee.type";
+import { prisma } from "../lib/prisma.js";
+import { Employee } from "../types/employee.type.js";
 
 const departments = [
   "Engineering",

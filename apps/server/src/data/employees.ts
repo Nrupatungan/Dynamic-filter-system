@@ -1,4 +1,4 @@
-import { Employee } from "../types/employee.type";
+import { Employee } from "../types/employee.type.js";
 
 
 const departments = [

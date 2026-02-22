@@ -1,12 +1,14 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { prisma } from "./lib/prisma";
-import { buildWhereClause } from "./utils/prismaFilterBuilder";
+import { prisma } from "./lib/prisma.js";
+import { buildWhereClause } from "./utils/prismaFilterBuilder.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173"
+}));
 app.use(express.json());
 
 app.get("/employees", async (_, res) => {
