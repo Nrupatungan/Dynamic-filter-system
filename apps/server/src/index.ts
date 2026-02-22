@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { prisma } from "./lib/prisma";
@@ -8,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/employees", async (req, res) => {
+app.get("/employees", async (_, res) => {
   const employees = await prisma.employee.findMany();
   res.json(employees);
 });
@@ -49,8 +50,12 @@ app.post("/employees/filter", async (req, res) => {
   });
 });
 
-const PORT = 5000;
+app.get("/health", (_, res) => {
+  res.json({ status: "ok" });
+});
+
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on PORT:${PORT}`);
 });
