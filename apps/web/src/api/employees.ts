@@ -1,7 +1,7 @@
 import type { FilterCondition } from "../types/filter.types";
 
 export const fetchEmployees = async () => {
-  const res = await fetch("http://localhost:5000/employees");
+  const res = await fetch(`${import.meta.env.VITE_DATABASE_URL}/employees`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch employees");
@@ -9,7 +9,6 @@ export const fetchEmployees = async () => {
 
   return res.json();
 };
-
 
 export const fetchFilteredEmployees = async (
   filters: FilterCondition[],
@@ -29,7 +28,7 @@ export const fetchFilteredEmployees = async (
   }
 
   const res = await fetch(
-    `http://localhost:5000/employees/filter?${params.toString()}`,
+    `${import.meta.env.VITE_DATABASE_URL}/employees/filter?${params.toString()}`,
     {
       method: "POST",
       headers: {
