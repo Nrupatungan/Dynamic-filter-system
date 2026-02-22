@@ -5,17 +5,17 @@ export interface Address {
 }
 
 export interface Employee {
-  id: number;
+  id: string;
   name: string;
   email: string;
   department: string;
   role: string;
   salary: number;
-  joinDate: string;
+  joinDate: Date;
   isActive: boolean;
   skills: string[];
   address: Address;
   projects: number;
-  lastReview: string;
+  lastReview: Date;
   performanceRating: number;
 }

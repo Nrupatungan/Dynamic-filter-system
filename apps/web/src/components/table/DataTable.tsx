@@ -11,7 +11,7 @@ import {
   Paper,
   TablePagination
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { getNestedValue } from "../../utils/nestedAccessor";
 
 export interface Column<T> {
@@ -29,9 +29,10 @@ interface DataTableProps<T> {
   rowsPerPage: number;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rows: number) => void;
+  orderBy: string | null;
+  order: "asc" | "desc";
+  onSort: (field: string) => void;
 }
-
-type Order = "asc" | "desc";
 
 function DataTable<T extends { id?: string | number }>({
   data,
@@ -40,19 +41,11 @@ function DataTable<T extends { id?: string | number }>({
   page,
   rowsPerPage,
   onPageChange,
-  onRowsPerPageChange
+  onRowsPerPageChange,
+  orderBy,
+  order,
+  onSort
 }: DataTableProps<T>) {
-  const [orderBy, setOrderBy] = useState<string | null>(null);
-  const [order, setOrder] = useState<Order>("asc");
-
-  const handleSort = (field: string) => {
-    if (orderBy === field) {
-      setOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setOrderBy(field);
-      setOrder("asc");
-    }
-  };
 
   const sortedData = useMemo(() => {
     if (!orderBy) return data;
@@ -109,9 +102,7 @@ function DataTable<T extends { id?: string | number }>({
                           ? order
                           : "asc"
                       }
-                      onClick={() =>
-                        handleSort(col.field)
-                      }
+                      onClick={() => onSort(col.field)}
                     >
                       {col.label}
                     </TableSortLabel>

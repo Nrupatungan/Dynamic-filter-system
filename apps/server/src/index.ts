@@ -1,35 +1,49 @@
 import express from "express";
 import cors from "cors";
-import { employees } from "./data/employees";
-import { applyFilters } from "./utils/filterEngine";
-import type { FilterCondition } from "./types/filter.types";
-
+import { prisma } from "./lib/prisma";
+import { buildWhereClause } from "./utils/prismaFilterBuilder";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/employees", (req, res) => {
+app.get("/employees", async (req, res) => {
+  const employees = await prisma.employee.findMany();
   res.json(employees);
 });
 
-app.post("/employees/filter", (req, res) => {
-  const filters: FilterCondition[] = req.body?.filters ?? [];
+app.post("/employees/filter", async (req, res) => {
+  const { filters = [] } = req.body;
 
   const page = Number(req.query.page ?? 1);
   const limit = Number(req.query.limit ?? 10);
 
-  const filtered = applyFilters(employees, filters);
+  const orderByField = req.query.orderBy as string | undefined;
+  const orderDirection =
+    req.query.order === "desc" ? "desc" : "asc";
 
-  const start = (page - 1) * limit;
-  const end = start + limit;
+  const skip = (page - 1) * limit;
 
-  const paginated = filtered.slice(start, end);
+  const where = buildWhereClause(filters);
+
+  const orderBy = orderByField
+    ? { [orderByField]: orderDirection }
+    : undefined;
+
+  const [data, total] = await Promise.all([
+    prisma.employee.findMany({
+      where,
+      orderBy,
+      skip,
+      take: limit
+    }),
+    prisma.employee.count({ where })
+  ]);
 
   res.json({
-    data: paginated,
-    total: filtered.length,
+    data,
+    total,
     page,
     limit
   });

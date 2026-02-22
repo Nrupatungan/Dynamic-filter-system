@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Employee {
+  id                String      @id @default(cuid()) 
+  name              String
+  email             String   @unique
+  department        String
+  role              String
+  salary            Float
+  joinDate          DateTime
+  isActive          Boolean
+  skills            Json
+  city              String
+  state             String
+  country           String
+  projects          Int
+  lastReview        DateTime
+  performanceRating Float
+}

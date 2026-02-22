@@ -14,10 +14,22 @@ export const fetchEmployees = async () => {
 export const fetchFilteredEmployees = async (
   filters: FilterCondition[],
   page: number,
-  limit: number
+  limit: number,
+  orderBy?: string,
+  order?: "asc" | "desc"
 ) => {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit)
+  });
+
+  if (orderBy) {
+    params.append("orderBy", orderBy);
+    params.append("order", order ?? "asc");
+  }
+
   const res = await fetch(
-    `http://localhost:5000/employees/filter?page=${page}&limit=${limit}`,
+    `http://localhost:5000/employees/filter?${params.toString()}`,
     {
       method: "POST",
       headers: {

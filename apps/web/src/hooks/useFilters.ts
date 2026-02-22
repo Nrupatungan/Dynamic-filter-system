@@ -41,6 +41,8 @@ export const useFilters = <T>(
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+  const [orderBy, setOrderBy] = useState<string | null>(null);
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
 
   const loadInitialFilters = (): FilterCondition[] => {
     try {
@@ -92,7 +94,9 @@ export const useFilters = <T>(
     fetchFilteredEmployees(
       validFilters,
       page + 1,
-      rowsPerPage
+      rowsPerPage,
+      orderBy ?? undefined,
+      order
     )
       .then((res) => {
         setServerData(res.data);
@@ -100,7 +104,7 @@ export const useFilters = <T>(
       })
       .finally(() => setLoading(false));
 
-  }, [filters, data, mode, page, rowsPerPage]);
+  }, [filters, data, mode, page, rowsPerPage, orderBy, order]);
 
   return {
     filters,
@@ -111,6 +115,10 @@ export const useFilters = <T>(
     setPage,
     rowsPerPage,
     setRowsPerPage,
-    totalCount
+    totalCount,
+    orderBy,
+    setOrderBy,
+    order,
+    setOrder
   };
 };

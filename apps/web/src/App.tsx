@@ -47,7 +47,11 @@ function App() {
     setPage,
     rowsPerPage,
     setRowsPerPage,
-    totalCount
+    totalCount,
+    orderBy,
+    setOrderBy,
+    order,
+    setOrder
   } = useFilters(employees, filterMode);
 
     useEffect(() => {
@@ -142,6 +146,16 @@ function App() {
           onRowsPerPageChange={(val) => {
             setRowsPerPage(val);
             setPage(0);
+          }}
+          orderBy={orderBy}
+          order={order}
+          onSort={(field) => {
+            if (orderBy === field) {
+              setOrder(order === "asc" ? "desc" : "asc");
+            } else {
+              setOrderBy(field);
+              setOrder("asc");
+            }
           }}
         />
       </Paper>

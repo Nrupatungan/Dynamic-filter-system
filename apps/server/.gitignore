@@ -88,3 +88,10 @@ docker-compose.override.yml
 # ----------------------------
 *.old
 *.backup
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/prisma/src/generated/prisma

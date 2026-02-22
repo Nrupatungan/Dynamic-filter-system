@@ -1,5 +1,5 @@
+import { prisma } from "../lib/prisma";
 import { Employee } from "../types/employee.type";
-
 
 const departments = [
   "Engineering",
@@ -86,7 +86,7 @@ export const employees: Employee[] = Array.from(
     );
 
     return {
-      id: `emp-${i + 1}`,
+      id: `emp_${i + 1}`,
       name: `Employee ${i + 1}`,
       email: `employee${i + 1}@company.com`,
       department,
@@ -103,3 +103,41 @@ export const employees: Employee[] = Array.from(
     };
   }
 );
+
+async function main() {
+  console.log("Deleting existing records...");
+  await prisma.employee.deleteMany();
+
+  console.log("Seeding data...");
+
+  await prisma.employee.createMany({
+    data: employees.map((emp) => ({
+      id: emp.id,
+      name: emp.name,
+      email: emp.email,
+      department: emp.department,
+      role: emp.role,
+      salary: emp.salary,
+      joinDate: new Date(emp.joinDate),
+      isActive: emp.isActive,
+      skills: emp.skills,
+      city: emp.address.city,
+      state: emp.address.state,
+      country: emp.address.country,
+      projects: emp.projects,
+      lastReview: new Date(emp.lastReview),
+      performanceRating: emp.performanceRating
+    }))
+  });
+
+  console.log("Seed complete");
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

@@ -88,7 +88,7 @@ export const validateFilter = (
           };
         }
 
-        if (new Date(start) > new Date(end)) {
+        if (new Date(start!) > new Date(end!)) {
           return {
             isValid: false,
             error: "Start date must be before End"
